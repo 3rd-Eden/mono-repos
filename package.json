@@ -1,0 +1,44 @@
+{
+  "name": "mono-repos",
+  "version": "0.0.1",
+  "description": "Re-usable utilities for orchestrating mono-repos",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*.test.js"
+  },
+  "bin": {
+    "mono": "./bin/mono"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3rd-Eden/mono-repos.git"
+  },
+  "keywords": [
+    "mono",
+    "repo",
+    "repos",
+    "mono-repo",
+    "mono-repos",
+    "multi-repo",
+    "multi-repos",
+    "orchestration",
+    "monorepo",
+    "monorepos"
+  ],
+  "author": "Arnout Kazemier",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/3rd-Eden/mono-repos/issues"
+  },
+  "homepage": "https://github.com/3rd-Eden/mono-repos#readme",
+  "dependencies": {
+    "argh": "^0.1.4",
+    "git-shizzle": "^0.0.5",
+    "npm-shizzle": "^1.0.0",
+    "warnings": "^1.0.1"
+  },
+  "devDependencies": {
+    "assume": "^1.5.2",
+    "mocha": "^5.0.1"
+  }
+}

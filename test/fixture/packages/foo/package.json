@@ -1,0 +1,14 @@
+{
+  "name": "mono-repos-fixture-foo",
+  "version": "0.0.0",
+  "description": "Fixture package for the mono-repos project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mono-repos-fixture-bar": "latest"
+  }
+}

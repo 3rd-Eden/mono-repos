@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+
+const argv = require('argh').argv;
+const Mono = require('../');
+
+//
+// Initialize the mono instance. Assume that the cwd() is the root of the
+// mono and that default params are given as argv
+//
+const mono = new Mono(process.cwd(), argv);
+
+if (argv.publish) {
+  if ('string' === typeof argv.publish) return mono.repo(argv.publish).publish();
+  return mono.publish();
+}
+
+if (argv.test) {
+  if ('string' === typeof argv.test) return mono.repo(argv.test).test();
+  return mono.test();
+}
+
+if (argv.link) {
+  if ('string' === typeof argv.link) return mono.repo(argv.link).link();
+  return mono.link();
+}
+
+if (argv.install) {
+  if ('string' === typeof argv.install) return mono.repo(argv.install).install();
+  return mono.install();
+}
+
+//
+// Output help information for any other unknown command.
+//
+require('warnings')('mono:help', {
+  prefix: 'hotpink'
+}).write([
+  'mono(-repos): Mono repo management made easy',
+  '',
+  'usage: mono [flags]',
+  '',
+  'The following flags are supported:',
+  '',
+  '--publish [name]         Publish all packages, when a name is given only release',
+  '                         that given package instead of all packages.',
+  '     --release [type]    Type of release, either `patch`, `minor` or `major`.',
+  '     --version [semver]  Instead of an automated bump, release the specified version.',
+  '     --message="message" Optional message for the publish.',
+  '--test [name]            Run the test suite, all, or for the given name.',
+  '--link [name]            npm link packages, all, or for the given name.',
+  '--install [name]         npm install dependencies, all, or for the given name.',
+  '',
+  'examples:',
+  '  mono --publish foo --release patch',
+  '  mono --install && mono --link'
+]);
