@@ -66,16 +66,22 @@ class Mono {
    * @public
    */
   each(iterate, ...args) {
-    const folders = fs.readdir(this.repos);
-
-    folders.forEach((folder) => {
-      const repo = new Repo(this, folder);
-
-      if ('function' === typeof iterate) iterate(repo);
-      else repo[iterate](...args);
+    const folders = fs.readdirSync(this.repos).filter((file) => {
+      return fs.lstatSync(path.join(this.repos, file)).isDirectory();
     });
 
-    return this;
+    let success = true;
+
+    folders.every((folder) => {
+      const repo = new Repo(this, folder);
+
+      if ('function' === typeof iterate) success = iterate(repo);
+      else success = repo[iterate](...args);
+
+      return success;
+    });
+
+    return success;
   }
 
   /**
@@ -97,7 +103,7 @@ class Mono {
   /**
    * Publish a new version of all packages.
    *
-   * @returns {Mono} Chaining.
+   * @returns {Boolean} Indication of success.
    * @public
    */
   publish(...args) {
@@ -107,7 +113,7 @@ class Mono {
   /**
    * Run the test suites of all packages.
    *
-   * @returns {Mono} Chaining.
+   * @returns {Boolean} Indication of success.
    * @public
    */
   test(...args) {
@@ -117,7 +123,7 @@ class Mono {
   /**
    * Symlink all packages together.
    *
-   * @returns {Mono} Chaining.
+   * @returns {Boolean} Indication of success.
    * @public
    */
   link(...args) {
