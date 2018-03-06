@@ -15,9 +15,26 @@ class Repo {
     this.mono = mono;
     this.name = name;
 
+    const options = this.configure();
+
     this.root = mono.resolve(this.name);
-    this.npm = new NPM(this.root);
+    this.npm = new NPM(this.root, {
+      silent: 'silent' in options ? options.silent : false
+    });
+
     this.manifest = path.join(this.root, 'package.json');
+  }
+
+  /**
+   * Create a configuration object with the options supplied to the function
+   * and those of our `mono` instance.
+   *
+   * @param {Object} options Supplied options.
+   * @returns {Object} Merged options.
+   * @public
+   */
+  configure(options = {}) {
+    return Object.assign({}, this.mono.options, options);
   }
 
   /**
@@ -33,36 +50,47 @@ class Repo {
   /**
    * Install all the dependencies.
    *
+   * @returns {Boolean} Indication of successful installation.
    * @public
    */
   install() {
-    this.npm.install();
+    try { this.npm.install(); }
+    catch (e) { return false; }
 
     //
     // After installation we want to make sure that our `npm` client knows this
     // library as a candidate for `npm link <name>` so we can symlink all
     // projects together after installation if needed.
     //
-    this.npm.link();
+    try { this.npm.link(); }
+    catch (e) { return false; }
+
+    return true;
   }
 
   /**
    * Run the tests of the repo.
    *
+   * @returns {Boolean} Indication if tests pass or fail.
    * @public
    */
   test() {
-    this.npm.runScript('test');
+    try { this.npm.runScript('test'); }
+    catch (e) { return false; }
+
+    return true;
   }
 
   /**
    * Symlink all known packages/repos.
    *
+   * @returns {Boolean} Successful execution.
    * @public
    */
   link() {
     const { dependencies, devDependencies } = this.read();
     const packages = this.mono.packages();
+    let success = true;
 
     //
     // Search the dependencies and devDependencies for package name that match
@@ -76,20 +104,11 @@ class Repo {
     .filter((name, i, arr) => arr.indexOf(name) === i)
     .filter((name) => !!~packages.indexOf(name))
     .forEach((name) => {
-      this.npm.link(name);
+      try { this.npm.link(name); }
+      catch (e) { success = false }
     });
-  }
 
-  /**
-   * Create a configuration object with the options supplied to the function
-   * and those of our `mono` instance.
-   *
-   * @param {Object} options Supplied options.
-   * @returns {Object} Merged options.
-   * @public
-   */
-  configure(options = {}) {
-    return Object.assign({}, this.mono.options, options);
+    return success;
   }
 
   /**
@@ -132,6 +151,8 @@ class Repo {
     // Step 5: Publish the bundle to the registery.
     //
     this.npm.publish();
+
+    return true;
   }
 
   /**
