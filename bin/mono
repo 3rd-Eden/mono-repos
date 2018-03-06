@@ -9,25 +9,27 @@ const Mono = require('../');
 //
 const mono = new Mono(process.cwd(), argv);
 
-if (argv.publish) {
-  if ('string' === typeof argv.publish) return mono.repo(argv.publish).publish();
-  return mono.publish();
+/**
+ * Simple helper function to execute a given command.
+ *
+ * @param {String} name Name of the command to execute, also name of argv.
+ * @returns {Undefined} Exit the process on command completion.
+ * @private
+ */
+function command(name) {
+  const arg = argv[name];
+
+  if ('string' === typeof arg) {
+    return process.exit(mono.repo(arg)[name]() ? 0 : 1);
+  }
+
+  return process.exit(mono[name]() ? 0 : 1);
 }
 
-if (argv.test) {
-  if ('string' === typeof argv.test) return mono.repo(argv.test).test();
-  return mono.test();
-}
-
-if (argv.link) {
-  if ('string' === typeof argv.link) return mono.repo(argv.link).link();
-  return mono.link();
-}
-
-if (argv.install) {
-  if ('string' === typeof argv.install) return mono.repo(argv.install).install();
-  return mono.install();
-}
+if (argv.install) return command('install');
+if (argv.publish) return command('publish');
+if (argv.test) return command('test');
+if (argv.link) return command('link');
 
 //
 // Output help information for any other unknown command.
