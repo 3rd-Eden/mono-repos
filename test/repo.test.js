@@ -48,6 +48,18 @@ describe('Repo', function () {
     it('releases a new version', function () {
       assume(repo.publish()).is.true();
     });
+
+    it('increases the version of the package.json', function () {
+      const data = repo.read();
+      const next = repo.bump(data.version);
+
+      assume(repo.publish()).is.true();
+      assume(repo.read().version).equals(next);
+    });
+
+    it('returns false if failed to publish a version', function () {
+      assume(repo.publish({ version: '1.0.0' })).is.false();
+    });
   });
 
   describe('#bump', function () {
