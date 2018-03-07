@@ -23,12 +23,12 @@ The `mono-repos` project assumes the following:
   - [mono#publish](#monopublish)
   - [mono#install](#monoinstall)
   - [mono#link](#monolink)
-- [CLI](#cli)
 - [Repo](#repo)
   - [publish](#publish)
   - [install](#install)
   - [test](#test)
   - [link](#link)
+- [CLI](#cli)
 - [License](#license)
 
 ## Installation
@@ -222,34 +222,6 @@ This is a shorthand method for:
 mono.each('test');
 ```
 
-## CLI
-
-The project comes with a build-in CLI called `mono`. This provides some basic
-repo management utilities such as (mass and targeted) publish, test, link and
-installation.
-
-```
-mono:help:
-mono:help: mono(-repos): Mono repo management made easy
-mono:help:
-mono:help: usage: mono [flags]
-mono:help:
-mono:help: The following flags are supported:
-mono:help:
-mono:help: --publish [name]         Publish all packages, when a name is given only release
-mono:help:                          that given package instead of all packages.
-mono:help:      --release [type]    Type of release, either `patch`, `minor` or `major`.
-mono:help:      --version [semver]  Instead of an automated bump, release the specified version.
-mono:help: --test [name]            Run the test suite, all, or for the given name.
-mono:help: --link [name]            npm link packages, all, or for the given name.
-mono:help: --install [name]         npm install dependencies, all, or for the given name.
-mono:help:
-mono:help: examples:
-mono:help:   mono --publish foo --release patch
-mono:help:   mono --install && mono --link
-mono:help:
-```
-
 ## Repo
 
 The `Repo` class represents a single package from the `packages` folder. The
@@ -385,6 +357,37 @@ Symlink all projects from the `packages` folder if we have a `dependency` or
 const repo = mono.repo('name of project');
 
 repo.link();
+```
+
+## CLI
+
+The project comes with a build-in CLI called `mono`. This provides some basic
+repo management utilities such as (mass and targeted) publish, test, link and
+installation.
+
+When supplying `mono` without arguments you will be presented with the help
+menu:
+
+```
+mono:help:
+mono:help: mono(-repos): Mono repo management made easy
+mono:help:
+mono:help: usage: mono [flags]
+mono:help:
+mono:help: --publish [name]           Publish all packages, when a name is given only release
+mono:help:                            that given package instead of all packages.
+mono:help:      --release [type]      Type of release, either `patch`, `minor` or `major`.
+mono:help:      --version [semver]    Instead of an automated bump, release the specified version.
+mono:help:      --message="message"   Optional message for the publish.
+mono:help: --test [name]              Run the test suite, all, or for the given name.
+mono:help: --link [name]              npm link packages, all, or for the given name.
+mono:help: --install [name]           npm install dependencies, all, or for the given name.
+mono:help:
+mono:help: examples:
+mono:help:
+mono:help:   mono --publish foo --release patch
+mono:help:   mono --install && mono --link
+mono:help:
 ```
 
 ## License
