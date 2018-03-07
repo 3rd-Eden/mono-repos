@@ -42,6 +42,7 @@ class Mono {
   /**
    * Verify if we're allowed to release the current state of the project.
    *
+   * @returns {Boolean} Indication of success.
    * @public
    */
   verify() {
@@ -54,8 +55,10 @@ class Mono {
         `Run 'git pull origin master'`
       ]);
 
-      process.exit(1);
+      return false;
     }
+
+    return true;
   }
 
   /**

@@ -105,7 +105,7 @@ class Repo {
     .filter((name) => !!~packages.indexOf(name))
     .forEach((name) => {
       try { this.npm.link(name); }
-      catch (e) { success = false }
+      catch (e) { success = false; }
     });
 
     return success;
@@ -122,6 +122,7 @@ class Repo {
 
     const pkg = this.read();
     const name = pkg.name;
+    const git = this.mono.git;
     const version = options.version || this.bump(pkg.version, options.release);
 
     //
@@ -134,18 +135,18 @@ class Repo {
     // Step 2: Commit the change
     //
     const message = JSON.stringify(`[dist] Release ${name}@${version} ${options.message}`.trim());
-    this.git.commit(`-anm ${message}`);
+    git.commit(`-anm ${message}`);
 
     //
     // Step 3: Tag the release.
     //
-    this.git.tag(`-a "${name}@${version}" -m ${message}`);
+    git.tag(`-a "${name}@${version}" -m ${message}`);
 
     //
     // Step 4: Push the release to the server.
     //
-    this.git.push('origin master');
-    this.git.push('--tags');
+    git.push('origin master');
+    git.push('--tags');
 
     //
     // Step 5: Publish the bundle to the registery.
