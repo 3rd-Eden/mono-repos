@@ -26,7 +26,13 @@ This library should be installed as `devDependency` in the **root** of your
 mono repository.
 
 ```
-npm install --save-dev mono-repo
+npm install --save-dev mono-repos
+```
+
+But as it ships with a CLI tool it can also be installed globally.
+
+```
+npm install --global mono-repos
 ```
 
 ## Usage
@@ -46,7 +52,67 @@ const mono = new Mono(process.cwd(), {
 });
 ```
 
-### CLI
+The `mono` instance has the following methods and properties available:
+
+- [mono.root](#monoroot)
+- [mono.git](#git)
+- [mono#repo](#monorepo)
+- [mono#resolve](#monoresolve)
+- [mono#verify](#monoverify)
+- [mono#each](#monoeach)
+- [mono#packages](#monopackages)
+- [mono#publish](#monopublish)
+- [mono#install](#monoinstall)
+- [mono#link](#monolink)
+
+### mono.root
+
+This is the absolute path to where the mono repository is located
+
+```js
+console.log(mono.root);
+```
+
+### mono.git
+
+A pre-configured `git-shizzle` cli wrapper for interacting with the git
+repository.
+
+```js
+console.log(mono.git.changes()) // lists all unstaged changes
+```
+
+### mono#repo
+
+Returns a new [Repo](#repo) instance for a given package name. The name should
+be a name of a folder which is in the `/packages` folder.
+
+```js
+const repo = mono.repo('package-name');
+```
+
+See [Repo](#repo) for the available methods on the repo instance.
+
+### mono#resolve
+
+Helper function to resolve the path package. It basically joins the name given
+name with `mono.root` and the known `packages` folder.
+
+```js
+const loc = mono.resolve('package-name');
+console.log(loc); // /current/working-directory/packages/package-name
+```
+
+### mono#verify
+
+Verifies that the repo is in a good state to publish. Returns a boolean as
+success indication.
+
+```js
+mono.verify();
+```
+
+## CLI
 
 The project comes with a build-in CLI called `mono`. This provides some basic
 repo management utilities such as (mass and targeted) publish, test, link and
@@ -74,7 +140,7 @@ mono:help:   mono --install && mono --link
 mono:help:
 ```
 
-### Repo
+## Repo
 
 The `Repo` class represents a single package from the `packages` folder. The
 package has the following methods available:
@@ -84,7 +150,7 @@ package has the following methods available:
 - [test](#test)
 - [link](#link)
 
-#### publish
+### publish
 
 Publish a new version of the package. The process will start the following
 operations in the package:
@@ -112,7 +178,7 @@ The method accepts an optional object with the following keys:
 If no options are provided, it will use the options object that was originally
 provided to the `mono` instance.
 
-#### install
+### install
 
 Install all the dependencies of the given project.
 
@@ -122,7 +188,7 @@ const project = mono.repo('name of project');
 project.install();
 ```
 
-#### test
+### test
 
 Run the test of a given project.
 
@@ -132,7 +198,7 @@ const project = mono.repo('name of project');
 project.test();
 ```
 
-#### link
+### link
 
 Symlink all projects from the `packages` folder if we have a `dependency` or
 `devDependency` on them.
