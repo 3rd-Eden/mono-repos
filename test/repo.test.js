@@ -43,6 +43,8 @@ describe('Repo', function () {
   });
 
   describe.only('#publish', function () {
+    this.timeout(10000);
+    
     it('releases a new version', function () {
       assume(repo.publish()).is.true();
     });
