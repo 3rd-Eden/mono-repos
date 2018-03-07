@@ -134,7 +134,7 @@ class Repo {
     //
     // Step 2: Commit the change
     //
-    const message = JSON.stringify(`[dist] Release ${name}@${version} ${options.message}`.trim());
+    const message = JSON.stringify(`[dist] Release ${name}@${version} ${options.message || ''}`.trim());
     git.commit(`-anm ${message}`);
 
     //
