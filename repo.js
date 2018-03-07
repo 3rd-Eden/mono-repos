@@ -7,7 +7,6 @@ const fs = require('fs');
  *
  * @param {Mono} mono Reference to the wrapping mono instance.
  * @param {String} name Name of the repo we represent.
- * @param {Object} options Additional configuration.
  * @public
  */
 class Repo {
@@ -141,24 +140,30 @@ class Repo {
     // other packages so we cannot do a `commit -a` but need to add our folder
     // manually.
     //
-    git.add(this.root);
-    git.commit(`-nm ${message}`);
+    try {
+      git.add(this.root);
+      git.commit(`-nm ${message}`);
+    } catch (e) { return false; }
 
     //
     // Step 3: Tag the release.
     //
-    git.tag(`-a "${name}@${version}" -m ${message}`);
+    try { git.tag(`-a "${name}@${version}" -m ${message}`); }
+    catch (e) { return false; }
 
     //
     // Step 4: Push the release to the server.
     //
-    git.push('origin master');
-    git.push('--tags');
+    try {
+      git.push('origin master');
+      git.push('--tags');
+    } catch (e) { return false; }
 
     //
     // Step 5: Publish the bundle to the registery.
     //
-    this.npm.publish();
+    try { this.npm.publish(); }
+    catch (e) { return false; }
 
     return true;
   }

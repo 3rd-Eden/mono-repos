@@ -25,7 +25,7 @@ class Mono {
    * @public
    */
   repo(name) {
-    return new Repo(this, name, this.options);
+    return new Repo(this, name);
   }
 
   /**
