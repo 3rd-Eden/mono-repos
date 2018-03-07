@@ -77,10 +77,15 @@ class Mono {
 
     folders.every((folder) => {
       const repo = new Repo(this, folder);
+      let yayornay;
 
-      if ('function' === typeof iterate) success = iterate(repo);
-      else success = repo[iterate](...args);
+      if ('function' === typeof iterate) {
+        yayornay = iterate(repo);
+      } else {
+        yayornay = repo[iterate](...args);
+      }
 
+      if ('boolean' === typeof yayornay) success = yayornay;
       return success;
     });
 
@@ -121,6 +126,16 @@ class Mono {
    */
   test(...args) {
     return this.each('test', ...args);
+  }
+
+  /**
+   * Install all the dependencies of all projects.
+   *
+   * @returns {Boolean} Indication of success.
+   * @public
+   */
+  install(...args) {
+    return this.each('install', ...args);
   }
 
   /**
