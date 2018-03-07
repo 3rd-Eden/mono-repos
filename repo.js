@@ -135,7 +135,14 @@ class Repo {
     // Step 2: Commit the change
     //
     const message = JSON.stringify(`[dist] Release ${name}@${version} ${options.message || ''}`.trim());
-    git.commit(`-anm ${message}`);
+
+    //
+    // We want to make sure that we only commit changes of this repo not the
+    // other packages so we cannot do a `commit -a` but need to add our folder
+    // manually.
+    //
+    git.add(this.root);
+    git.commit(`-nm ${message}`);
 
     //
     // Step 3: Tag the release.
