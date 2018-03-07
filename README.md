@@ -13,12 +13,23 @@ The `mono-repos` project assumes the following:
 
 - [Installation](#installation)
 - [Usage](#Usage)
-  - [CLI](#cli)
-  - [Repo](#repo)
-    - [publish](#publish)
-    - [install](#install)
-    - [test](#test)
-    - [link](#link)
+  - [mono.root](#monoroot)
+  - [mono.git](#git)
+  - [mono#repo](#monorepo)
+  - [mono#resolve](#monoresolve)
+  - [mono#verify](#monoverify)
+  - [mono#each](#monoeach)
+  - [mono#packages](#monopackages)
+  - [mono#publish](#monopublish)
+  - [mono#install](#monoinstall)
+  - [mono#link](#monolink)
+- [CLI](#cli)
+- [Repo](#repo)
+  - [publish](#publish)
+  - [install](#install)
+  - [test](#test)
+  - [link](#link)
+- [License](#license)
 
 ## Installation
 
@@ -64,6 +75,7 @@ The `mono` instance has the following methods and properties available:
 - [mono#publish](#monopublish)
 - [mono#install](#monoinstall)
 - [mono#link](#monolink)
+- [mono#test](#monotest)
 
 ### mono.root
 
@@ -112,6 +124,104 @@ success indication.
 mono.verify();
 ```
 
+### mono#each
+
+Iterates over all packages in the `/packages` folder. It accepts a function or
+a string as first argument. When it's a function, it assumes it's an iterator
+function. This function will receive a [Repo](#repo) instance as first argument.
+
+When a string is supplied it will assume it's a method name that needs be called
+on the [Repo](#repo) instance. Any other argument supplied to the `mono#each`
+method will then be used as argument for the method.
+
+```js
+mono.each('publish'); // iterates over all packages, calls repo#publish on all.
+
+//
+// Same as above, but then passes the object in to the repo#publish method
+//
+mono.each('publish', { release: 'major' });
+
+//
+// Which are all short hands for writing:
+//
+mono.each(function each(repo) {
+  return repo.publish();
+});
+```
+
+It's worth noting that the `mono#each` method will stop iterating over the
+packages when you return a `false` in the callback. This is useful for cases
+when you do not want to continue publishing when an error occurs etc.
+
+### mono#packages
+
+Returns an array with the names of the npm packages that are hosted in the
+`/packages` folder.
+
+```js
+mono.packages(); // ["package-name", "another", ..]
+```
+
+### mono#install
+
+Install the dependencies of all the package.
+
+```js
+mono.install()
+```
+
+This is a shorthand method for;
+
+```js
+mono.each('install');
+```
+
+### mono#publish
+
+Publishes all the packages.
+
+```js
+mono.publish({
+  release: 'major',
+  message: 'optional commit message, see Repo#publish for more information'
+})
+```
+
+This is a shorthand method for:
+
+```js
+mono.each('publish');
+```
+
+### mono#link
+
+Setups the symlinks of in the `node_module` folders of all packages.
+
+```js
+mono.link();
+```
+
+This is a shorthand method for:
+
+```js
+mono.each('link');
+```
+
+### mono#test
+
+Run all the tests.
+
+```js
+mono.test();
+```
+
+This is a shorthand method for:
+
+```js
+mono.each('test');
+```
+
 ## CLI
 
 The project comes with a build-in CLI called `mono`. This provides some basic
@@ -143,14 +253,82 @@ mono:help:
 ## Repo
 
 The `Repo` class represents a single package from the `packages` folder. The
-package has the following methods available:
+package has the following methods and properties are available:
 
-- [publish](#publish)
-- [install](#install)
-- [test](#test)
-- [link](#link)
+- [repo.name](#reponame)
+- [repo.root](#reporoot)
+- [repo.npm](#reponpm)
+- [repo#configure](#repoconfigure)
+- [repo#read](#reporead)
+- [repo#publish](#repopublish)
+- [repo#install](#repoinstall)
+- [repo#test](#repotest)
+- [repo#link](#repolink)
 
-### publish
+### repo#name
+
+The name of the package. This corresponds with the folder name in `/packages`
+
+```js
+const repo = mono.repo('package-name');
+
+console.log(repo.name); // package-name
+```
+
+### repo#root
+
+The absolute path to the package folder
+
+```js
+const repo = mono.repo('package-name');
+
+console.log(repo.root); // /root/folder/packages/package-name
+```
+
+### repo#npm
+
+Pre-configured `npm-shizzle` cli wrapper that only operates in the package
+folder.
+
+```js
+const repo = mono.repo('package-name');
+
+repo.npm.install('--save', 'diagnostics');
+```
+
+The snippet above will save a new dependency in the `package.json` of the file.
+
+### repo#configure
+
+Merges the provided options with the options that were origionally provided to
+the `mono` instance. This allows you to supply defaults options to the [mono](#mono)
+instance. This method used by all repo methods that accept options.
+
+```js
+const mono = new Mono(process.cwd(), {
+  foo: 'bar',
+  bar: 'baz'
+});
+
+const repo = mono.repo('hello world');
+
+const options = repo.configure({ bar: 'hi', release: 'major' });
+
+// options is now: { foo: 'bar', bar: 'hi', release: 'major' }
+```
+
+### repo#read
+
+Read out the `package.json` of the package.
+
+```js
+const repo = mono.repo('package-name');
+
+const data = repo.read();
+console.log(data.version, data.dependencies);
+```
+
+### repo#publish
 
 Publish a new version of the package. The process will start the following
 operations in the package:
@@ -162,9 +340,9 @@ operations in the package:
 - Run `npm publish` to publish the version to `npm`.
 
 ```js
-const project = mono.repo('name of project');
+const repo = mono.repo('name of project');
 
-project.publish({ release: 'patch' });
+repo.publish({ release: 'patch' });
 ```
 
 The method accepts an optional object with the following keys:
@@ -178,33 +356,37 @@ The method accepts an optional object with the following keys:
 If no options are provided, it will use the options object that was originally
 provided to the `mono` instance.
 
-### install
+### repo#install
 
 Install all the dependencies of the given project.
 
 ```js
-const project = mono.repo('name of project');
+const repo = mono.repo('name of project');
 
-project.install();
+repo.install();
 ```
 
-### test
+### repo#test
 
 Run the test of a given project.
 
 ```js
-const project = mono.repo('name of project');
+const repo = mono.repo('name of project');
 
-project.test();
+repo.test();
 ```
 
-### link
+### repo#link
 
 Symlink all projects from the `packages` folder if we have a `dependency` or
 `devDependency` on them.
 
 ```js
-const project = mono.repo('name of project');
+const repo = mono.repo('name of project');
 
-project.link();
+repo.link();
 ```
+
+## License
+
+The project is released under the MIT license
