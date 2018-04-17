@@ -1,6 +1,6 @@
 {
   "name": "mono-repos-fixture-foo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Fixture package for the mono-repos project",
   "main": "index.js",
   "scripts": {
