@@ -58,10 +58,17 @@ The `mono` constructor accepts 2 arguments:
 - `options` Default configuration for the projects.
 
 ```js
-const mono = new Mono(process.cwd(), {
-  // options here
-});
+const mono = new Mono(process.cwd(), { /* options here */ });
 ```
+
+In addition to the `options`argument that you can pass into the `Mono`
+constructor we also support reading of global config files/values:
+
+- `package.json#mono` Add a new `mono` object to your `package.json` where you
+  specify the config values.
+- `.monorc` Creating a dedicated `.monorc` file in JSON format, and specify the
+  configuration values there. If a `.monorc` file is found, we will ignore the
+  values that are specified in `package.json#mono`.
 
 The `mono` instance has the following methods and properties available:
 
@@ -272,7 +279,7 @@ The snippet above will save a new dependency in the `package.json` of the file.
 
 ### repo#configure
 
-Merges the provided options with the options that were origionally provided to
+Merges the provided options with the options that were originally provided to
 the `mono` instance. This allows you to supply defaults options to the [mono](#mono)
 instance. This method used by all repo methods that accept options.
 

@@ -1,4 +1,5 @@
 const Git = require('git-shizzle');
+const dotfig = require('dotfig');
 const Repo = require('./repo');
 const path = require('path');
 const fs = require('fs');
@@ -13,7 +14,8 @@ const fs = require('fs');
 class Mono {
   constructor(root, options) {
     this.root = root;
-    this.options = options;
+    this.options = Object.assign(dotfig('mono') || {}, options || {});
+
     this.git = new Git(root);
     this.repos = path.join(this.root, 'packages');
   }
