@@ -50,7 +50,7 @@ require('warnings')('mono:help', {
   '--test [name]              Run the test suite, all, or for the given name.',
   '--link [name]              npm link packages, all, or for the given name.',
   '--install [name]           npm install dependencies, all, or for the given name.',
-  '--uninstall [name]         remove all node_modules, all, or for the given name.'
+  '--uninstall [name]         remove all node_modules, all, or for the given name.',
   '',
   'examples:',
   '',

@@ -36,6 +36,7 @@
     "dotfig": "^1.0.1",
     "git-shizzle": "^0.0.5",
     "npm-shizzle": "^1.1.0",
+    "rimraf": "^2.6.2",
     "warnings": "^1.0.1"
   },
   "devDependencies": {
