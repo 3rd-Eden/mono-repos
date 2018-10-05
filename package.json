@@ -1,6 +1,6 @@
 {
   "name": "mono-repos",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Re-usable utilities for orchestrating mono-repos",
   "main": "index.js",
   "scripts": {
