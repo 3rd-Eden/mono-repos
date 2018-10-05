@@ -1,3 +1,4 @@
+const debug = require('diagnostics');
 const Git = require('git-shizzle');
 const dotfig = require('dotfig');
 const Repo = require('./repo');
@@ -17,6 +18,7 @@ class Mono {
     this.options = Object.assign(dotfig('mono') || {}, options || {});
 
     this.git = new Git(root);
+    this.log = debug('mono');
     this.repos = path.join(this.root, 'packages');
   }
 
@@ -117,6 +119,7 @@ class Mono {
    * @public
    */
   publish(...args) {
+    this.log('[publish] all packages');
     return this.each('publish', ...args);
   }
 
@@ -127,6 +130,7 @@ class Mono {
    * @public
    */
   test(...args) {
+    this.log('[test] all packages');
     return this.each('test', ...args);
   }
 
@@ -137,6 +141,7 @@ class Mono {
    * @public
    */
   install(...args) {
+    this.log('[install] all packages');
     return this.each('install', ...args);
   }
 
@@ -147,6 +152,7 @@ class Mono {
    * @public
    */
   uninstall(...args) {
+    this.log('[uinstall] all packages');
     return this.each('uninstall', ...args);
   }
 
@@ -157,6 +163,7 @@ class Mono {
    * @public
    */
   link(...args) {
+    this.log('[link] all packages');
     return this.each('link', ...args);
   }
 }

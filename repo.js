@@ -1,3 +1,4 @@
+const debug = require('diagnostics');
 const NPM = require('npm-shizzle');
 const rmrf = require('rimraf');
 const path = require('path');
@@ -17,6 +18,7 @@ class Repo {
 
     const options = this.configure();
 
+    this.log = debug('mono:repo:'+ this.name);
     this.root = mono.resolve(this.name);
     this.npm = new NPM(this.root, {
       silent: 'silent' in options ? options.silent : false
@@ -54,16 +56,25 @@ class Repo {
    * @public
    */
   install() {
+    this.log('installing dependencies');
+
     try { this.npm.install(); }
-    catch (e) { return false; }
+    catch (e) {
+      this.log('failed to `npm install`', e);
+      return false;
+    }
 
     //
     // After installation we want to make sure that our `npm` client knows this
     // library as a candidate for `npm link <name>` so we can symlink all
     // projects together after installation if needed.
     //
+    this.log('registering project with `npm link`');
     try { this.npm.link(); }
-    catch (e) { return false; }
+    catch (e) {
+      this.log('failed to `npm link`', e);
+      return false;
+    }
 
     return true;
   }
@@ -75,8 +86,13 @@ class Repo {
    * @public
    */
   test() {
+    this.log('running test suite');
+
     try { this.npm.runScript('test'); }
-    catch (e) { return false; }
+    catch (e) {
+      this.log('failed to `npm test`', e);
+      return false;
+    }
 
     return true;
   }
@@ -88,6 +104,8 @@ class Repo {
    * @public
    */
   link() {
+    this.log('connecting all mono-repo packages together with symlinks');
+
     const { dependencies, devDependencies } = this.read();
     const packages = this.mono.packages();
     let success = true;
@@ -105,8 +123,13 @@ class Repo {
     .filter((name, i, arr) => arr.indexOf(name) === i)
     .filter((name) => !!~packages.indexOf(name))
     .forEach((name) => {
+      this.log(`found package that exists in the mono repo: ${name}`);
+
       try { this.npm.link(name); }
-      catch (e) { success = false; }
+      catch (e) {
+        this.log('failed to `npm link` '+ name, e);
+        success = false;
+      }
     });
 
     return success;
@@ -119,11 +142,14 @@ class Repo {
    * @public
    */
   uninstall() {
+    this.log('unstalling the dependencies');
     let success = true;
 
     [
       path.join(this.root, 'node_modules')
     ].forEach((dir) => {
+      this.log(`rm-rf directory ${dir}`);
+
       try { rmrf.sync(dir); }
       catch (e) { success = false; }
     });
@@ -149,6 +175,7 @@ class Repo {
     // Step 1: Update the package.json to the new version.
     //
     pkg.version = version;
+    this.log('step (1) updating package.json{version} to %s', version);
     fs.writeFileSync(this.manifest, JSON.stringify(pkg, null, 2));
 
     //
@@ -161,30 +188,49 @@ class Repo {
     // other packages so we cannot do a `commit -a` but need to add our folder
     // manually.
     //
+    this.log('step (2) adding commit message to git history', message);
+
     try {
       git.add(this.root);
       git.commit(`-nm ${message}`);
-    } catch (e) { return false; }
+    } catch (e) {
+      this.log('step (2) failed to `git commit`', e);
+      return false;
+    }
 
     //
     // Step 3: Tag the release.
     //
-    try { git.tag(`-a "${name}@${version}" -m ${message}`); }
-    catch (e) { return false; }
+    const tag = `${name}@${version}`;
+    this.log('step (3) generating git', version);
+
+    try { git.tag(`-a "${tag}" -m ${message}`); }
+    catch (e) {
+      this.log('step (3) failed to add git tag', e);
+      return false;
+    }
 
     //
     // Step 4: Push the release to the server.
     //
+    this.log('step (4) Pushing tags and commits to master');
     try {
       git.push('origin master');
       git.push('--tags');
-    } catch (e) { return false; }
+    } catch (e) {
+      this.log('step (4) failed to push to master', e);
+      return false;
+    }
 
     //
     // Step 5: Publish the bundle to the registery.
     //
+    this.log('step (5) publishing package');
     try { this.npm.publish(); }
-    catch (e) { return false; }
+    catch (e) {
+      this.log('step (5) failed publish package', e);
+      return false;
+    }
 
     return true;
   }
@@ -223,6 +269,6 @@ class Repo {
 }
 
 //
-// Export the Repo class
+// Export the Repo class.
 //
 module.exports = Repo;
