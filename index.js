@@ -141,6 +141,16 @@ class Mono {
   }
 
   /**
+   * Remove all the dependencies of all projects.
+   *
+   * @returns {Boolean} Indication of success.
+   * @public
+   */
+  uninstall(...args) {
+    return this.each('uninstall', ...args);
+  }
+
+  /**
    * Symlink all packages together.
    *
    * @returns {Boolean} Indication of success.

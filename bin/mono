@@ -26,6 +26,7 @@ function command(name) {
   return process.exit(mono[name]() ? 0 : 1);
 }
 
+if (argv.uninstall) return command('uninstall');
 if (argv.install) return command('install');
 if (argv.publish) return command('publish');
 if (argv.test) return command('test');
@@ -49,6 +50,7 @@ require('warnings')('mono:help', {
   '--test [name]              Run the test suite, all, or for the given name.',
   '--link [name]              npm link packages, all, or for the given name.',
   '--install [name]           npm install dependencies, all, or for the given name.',
+  '--uninstall [name]         remove all node_modules, all, or for the given name.'
   '',
   'examples:',
   '',

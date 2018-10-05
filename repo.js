@@ -1,4 +1,5 @@
 const NPM = require('npm-shizzle');
+const rmrf = require('rimraf');
 const path = require('path');
 const fs = require('fs');
 
@@ -105,6 +106,25 @@ class Repo {
     .filter((name) => !!~packages.indexOf(name))
     .forEach((name) => {
       try { this.npm.link(name); }
+      catch (e) { success = false; }
+    });
+
+    return success;
+  }
+
+  /**
+   * Clean up the directory.
+   *
+   * @returns {Boolean} Successful execution.
+   * @public
+   */
+  uninstall() {
+    let success = true;
+
+    [
+      path.join(this.root, 'node_modules')
+    ].forEach((dir) => {
+      try { rmrf.sync(dir); }
       catch (e) { success = false; }
     });
 
