@@ -97,9 +97,10 @@ class Repo {
     // symlinked.
     //
     [
-      ...Object.keys(dependencies),
-      ...Object.keys(devDependencies)
+      ...Object.keys(dependencies || {}),
+      ...Object.keys(devDependencies || {})
     ]
+    .filter(Boolean)
     .filter((name, i, arr) => arr.indexOf(name) === i)
     .filter((name) => !!~packages.indexOf(name))
     .forEach((name) => {
